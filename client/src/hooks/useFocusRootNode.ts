@@ -13,7 +13,7 @@ export const useFocusRootNode = () => {
     function focusRootNode() {
       if (rootNode && rootNode.measured && !isFocused.current) {
         reactFlowInstance.setCenter(rootNode.position.x, rootNode.position.y, {
-          zoom: 0.7,
+          zoom: 0.8,
         });
         isFocused.current = true;
       }

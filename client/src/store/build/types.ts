@@ -9,7 +9,7 @@ import { WritableDraft } from "immer";
 
 export interface IBuild {
   _id: any;
-  depGraphMetrics: DepGraphMetrics;
+  depGraphMetrics: IDepGraphData;
   resultMetrics: ResultMetrics;
   buildId: string;
   createdAt: string;
@@ -19,6 +19,17 @@ export interface IBuild {
 export interface DepGraphMetrics {
   nodes: INode[];
   edges: IEdge[];
+}
+
+export interface IAnalysisResults {
+  impactScores: Record<string, number>;
+  deadModules: (string | number)[];
+  codeSplittingSuggestions: string[];
+}
+
+export interface IDepGraphData {
+  metrics: DepGraphMetrics;
+  analysis: IAnalysisResults;
 }
 
 export interface INode {

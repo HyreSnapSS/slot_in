@@ -49,6 +49,7 @@ export const depGraphToolActions = (
         id: `${edge.source}-${edge.target}`,
         source: edge.source,
         target: edge.target.toString(),
+        step: "step",
       }))
       .filter((edge) => edge.source);
 
@@ -99,6 +100,7 @@ export const depGraphToolActions = (
           : { x: 0, y: 0 },
         width: _NODE_WIDTH,
         height: _NODE_HEIGHT,
+        type: "moduleNode",
       };
     });
 
@@ -107,6 +109,7 @@ export const depGraphToolActions = (
         ...edge,
         source: edge.source || "",
         style: { stroke: "red" },
+        type: "smoothstep",
       }));
       state.nodes = updatedNodes;
     });

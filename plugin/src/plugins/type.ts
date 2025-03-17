@@ -28,13 +28,15 @@ export interface IResultMetrics {
   hmrTime?: string;
 }
 
-interface INode {
+export interface INode {
   id: string | number;
   name: string;
   size: number;
+  isRoot: boolean;
+  dependencies: (string | number)[];
 }
 
-interface IEdge {
+export interface IEdge {
   source: string | number;
   target: string | number;
 }
@@ -44,9 +46,14 @@ export interface DepGraphMetrics {
   edges: IEdge[];
 }
 
+interface IDepGraphData {
+  metrics: DepGraphMetrics;
+  analysis: IAnalysisResults;
+}
+
 export interface IResults {
   resultMetrics?: IResultMetrics;
-  depGraphMetrics?: DepGraphMetrics;
+  depGraphMetrics?: IDepGraphData;
 }
 
 export const PLUGIN_NAME = "BuildPhysician" as const;
@@ -58,4 +65,9 @@ export interface IConstructor {
       buildId: string;
     }
   ) => void;
+}
+export interface IAnalysisResults {
+  impactScores: Record<string, number>;
+  deadModules: (string | number)[];
+  codeSplittingSuggestions: string[];
 }

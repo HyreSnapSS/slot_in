@@ -6,12 +6,15 @@ import {
   TimedModule,
   IResults,
   IConstructor,
+  INode,
+  IAnalysisResults,
 } from "./type";
 import { builds } from "../api";
 import { Logger } from "../utils/log";
 import path from "path";
 import Config from "../config";
 
+const _assetRegex = /\.(png|jpg|jpeg|svg|gif|webp|aviff|ico)$/;
 export class BuildPhysician {
   private metrics: BuildMetrics;
   private results: IResults;
@@ -62,8 +65,7 @@ export class BuildPhysician {
             let type = "unknown";
             if (ext.match(/\.js|\.jsx|\.ts|\.tsx/)) type = "script";
             else if (ext.match(/\.css|\.scss|\.less/)) type = "style";
-            else if (ext.match(/\.png|\.webp|\.aviff|\.jpg|\.jpeg|\.gif|\.svg/))
-              type = "image";
+            else if (ext.match(_assetRegex)) type = "image";
             else if (ext.match(/\.html/)) type = "html";
             else if (ext.match(/\.json/)) type = "json";
 
@@ -166,6 +168,7 @@ export class BuildPhysician {
           name: mod.name,
           size: mod.size,
           isRoot: isRoot && isUserCode,
+          dependencies: mod.reasons.map((r) => r.moduleId).filter(Boolean),
         };
       });
 
@@ -176,12 +179,56 @@ export class BuildPhysician {
         }))
       );
 
-      console.log(nodes.filter((node) => node.isRoot));
-
+      const analysis = this.analyzeDependencies(nodes);
       const data = { nodes, edges };
-      this.results.depGraphMetrics = data;
+      this.results.depGraphMetrics = { metrics: data, analysis };
       Logger.info("🔥 Depgraph created");
     });
+  }
+
+  private analyzeDependencies(nodes: INode[]) {
+    const issues: IAnalysisResults = {
+      impactScores: {},
+      deadModules: [],
+      codeSplittingSuggestions: [],
+    };
+
+    const _BANDWIDTH = 10000;
+    const scores = Object.entries(issues.impactScores);
+
+    const detectDeadCode = (module: INode) => {
+      const moduleId = module.id + "";
+      // Impact Score based on size & number of dependencies
+      issues.impactScores[moduleId] =
+        module.size * (module.dependencies.length + 1);
+
+      const isStaticAsset = moduleId.match(_assetRegex);
+      if (!isStaticAsset) {
+        // Detect Dead Code (modules with no dependents)
+        const isDead = nodes.every((m) => !m.dependencies.includes(moduleId));
+        const isCorrectModule = moduleId.trim();
+        if (isDead && isCorrectModule) issues.deadModules.push(moduleId);
+      }
+    };
+
+    const genCodeSplittingSuggestions = ([moduleId, score]: [
+      string,
+      number
+    ]) => {
+      const moduleName = moduleId.toLowerCase();
+      const isInstalledDependency = moduleId.includes("node_modules");
+      if (
+        score > _BANDWIDTH &&
+        !moduleName.match(_assetRegex) &&
+        !isInstalledDependency
+      )
+        issues.codeSplittingSuggestions.push(moduleId);
+    };
+
+    nodes.forEach(detectDeadCode);
+    scores.forEach(genCodeSplittingSuggestions);
+
+    return issues;
   }
 
   private createBuildRecord(compiler: Compiler) {

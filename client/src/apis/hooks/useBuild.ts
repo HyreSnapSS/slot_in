@@ -13,8 +13,8 @@ const useFindBuild = (buildId: string) => {
     queryFn: async () => {
       const data = await getBuildData(buildId);
       setDepGraph(
-        data.data.depGraphMetrics.nodes,
-        data.data.depGraphMetrics.edges
+        data.data.depGraphMetrics.metrics.nodes,
+        data.data.depGraphMetrics.metrics.edges
       );
       return data.data;
     },

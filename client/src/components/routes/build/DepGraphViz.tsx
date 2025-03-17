@@ -2,6 +2,9 @@ import { useFocusRootNode } from "@hooks/useFocusRootNode";
 import { useDepGraphToolStore } from "@store/build";
 import { ReactFlow, Controls, Background, MiniMap } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { ModuleNode } from "./ModuleNode";
+
+const nodeTypes = { moduleNode: ModuleNode };
 
 export const DepGraphViz = () => {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect } =
@@ -19,6 +22,8 @@ export const DepGraphViz = () => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        style={{ backgroundColor: "#F7F9FB" }}
+        nodeTypes={nodeTypes}
       >
         <Background />
         <Controls />
