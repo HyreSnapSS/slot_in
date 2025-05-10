@@ -6,6 +6,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from urllib.parse import quote_plus
 from pymongo.synchronous.collection import Collection
+import certifi
 
 
 class Database:
@@ -20,7 +21,11 @@ class Mongo:
     def __init__(self):
         password = "Sayantan@123"
         encoded_pwd = quote_plus(password)
-        self._client = MongoClient(f"mongodb+srv://Sayantan:{encoded_pwd}@jwitterodev.agsawv4.mongodb.net/dev?retryWrites=true&w=majority", server_api=ServerApi('1'))
+        uri = f"mongodb+srv://Sayantan:{encoded_pwd}@jwitterodev.agsawv4.mongodb.net/?appName=jwitterOdev"
+        self._client = MongoClient(
+            host=uri, server_api=ServerApi('1'),
+            tlsCAFile=certifi.where()
+        )
         self._ping()
         self.db = self._client.get_database("dev")
         

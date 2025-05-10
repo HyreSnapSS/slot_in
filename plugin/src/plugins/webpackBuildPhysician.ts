@@ -238,11 +238,11 @@ export class BuildPhysician {
         projectId: this.config.projectId,
       };
       const { data: buildId } = await builds.post<string>("/", data);
-      Logger.info("Build Instance Created!".green);
+      Logger.info("✨ Build Instance Created!".green);
       const _genLink =
         `${Config.BUILD_PHY_CLIENT_URL}/projects/${this.config.projectId}/builds/${buildId}`
           .red.underline.red;
-      const _genLinkPreffix = "Check your bundle's insights at:: ".gray;
+      const _genLinkPreffix = "🚀 Check your bundle's insights at:: ".gray;
       Logger.info(_genLinkPreffix, _genLink);
       this.config?.emitOnBuildCompete?.({ ...this.results, buildId });
     });
